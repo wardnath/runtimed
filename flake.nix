@@ -27,6 +27,26 @@
           jupyter
         ];
 
+        createKernel = pkgs: kernelName: language: 
+          pkgs.writeTextFile {
+            name = "${kernelName}-kernel.json";
+            text = builtins.toJSON {
+              argv = ["${pkgs.python3}/bin/python" "-m" "ipykernel_launcher" "-f" "{connection_file}"];
+              display_name = kernelName;
+              language = language;
+            };
+            destination = "/share/jupyter/kernels/${kernelName}/kernel.json";
+          };
+
+        kernelPackage = pkgs.symlinkJoin {
+          name = "custom-jupyter-kernel";
+          paths = [
+            (createKernel pkgs "CustomPython" "python")
+            pkgs.python3
+            pkgs.python3Packages.ipykernel
+          ];
+        };
+
         buildRustPackage = { pname, cargoToml }: pkgs.rustPlatform.buildRustPackage {
           inherit pname;
           version = "0.1.0";
@@ -37,7 +57,7 @@
           };
 
           nativeBuildInputs = commonInputs;
-          buildInputs = [ pkgs.openssl pkgs.jupyter ];
+          buildInputs = [ pkgs.openssl pkgs.jupyter kernelPackage ];
 
           buildPhase = ''
             export OPENSSL_DIR=${pkgs.openssl.dev}
@@ -50,6 +70,8 @@
           installPhase = ''
             mkdir -p $out/bin
             cp target/release/${pname} $out/bin/
+            mkdir -p $out/share
+            cp -r ${kernelPackage}/share $out/
           '';
 
           doCheck = false;  # Temporarily disable tests
@@ -72,7 +94,7 @@
 
         devShell = pkgs.mkShell {
           nativeBuildInputs = commonInputs;
-          buildInputs = [ pkgs.openssl pkgs.jupyter ];
+          buildInputs = [ pkgs.openssl pkgs.jupyter kernelPackage ];
 
           shellHook = ''
             export OPENSSL_DIR=${pkgs.openssl.dev}

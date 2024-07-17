@@ -8,7 +8,9 @@
     "gcc@latest",
     "binutils@latest",
     "jupyter@latest",
-    "cargo@latest"
+    "cargo@latest",
+    "github:wardnath/runtimed#runtimed",
+    "github:wardnath/runtimed#runt"
   ],
   "shell": {
     "init_hook": [
