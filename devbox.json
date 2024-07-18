@@ -10,7 +10,11 @@
     "jupyter@latest",
     "cargo@latest",
     "github:wardnath/runtimed#runtimed",
-    "github:wardnath/runtimed#runt"
+    "github:wardnath/runtimed#runt",
+    "path:.#runt",
+    "path:.#runtimed",
+    "path:.#install-kernel",
+    "path:.#kernelspec"
   ],
   "shell": {
     "init_hook": [
